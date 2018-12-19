@@ -1,0 +1,21 @@
+# Default values for cowweb-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: production
+
+image: hhayakaw/cowweb:latest
+
+replicaCount: 5
+
+debug: 
+  enabled: false
+
+service:
+  type: LoadBalancer
+  http:
+    port: {}
+    nodePort: {}
+  debug:
+    port: {}
+    nodePort: {}

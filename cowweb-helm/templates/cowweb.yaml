@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: NameSpace
+metadata:
+  name: {{ .Values.namespace | default "default" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.namespace | default "default" }}
+  name: cowweb
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: cowweb
+  ports:
+  - name: http
+    port: {{ .Values.service.http.port | default 80 }}
+    targetPort: {{ .Values.service.http.targetPort | default 8080 }}
+    {{ if and (.Values.service.type) (eq .Values.service.type "NodePort") }}
+    nodePort: {{ .Values.service.http.nodePort | default 30080 }}
+    {{ end }}
+    {{ if .Values.debug.enabled }}
+  - name: debug
+    port: {{ .Values.service.debug.port | default 8081 }}
+    targetPort: {{ .Values.service.http.targetPort | default 8081 }}
+    {{ if and (.Values.service.type) (eq .Values.service.type "NodePort") }}
+    nodePort: {{ .Values.service.debug.nodePort | default 30081 }}
+    {{ end }}
+    {{ end }}
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.namespace | default "default" }}
+  name: cowweb
+  labels:
+    app: cowweb
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: cowweb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cowweb
+    spec:
+      containers:
+      - name: cowweb
+        image: {{ .Values.image }}
+        ports:
+        - name: api
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /cowsay/ping
+            port: api
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /cowsay/ping
+            port: api
+          initialDelaySeconds: 15
+          periodSeconds: 20

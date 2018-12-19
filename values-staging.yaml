@@ -1,0 +1,21 @@
+# Default values for cowweb-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: staging
+
+image: hhayakaw/cowweb:latest
+
+replicaCount: 2
+
+debug: 
+  enabled: true
+
+service:
+  type: NodePort
+  http:
+    port: {}
+    nodePort: {}
+  debug:
+    port: {}
+    nodePort: {}
