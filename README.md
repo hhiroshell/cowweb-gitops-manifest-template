@@ -1,0 +1,1 @@
+# cowweb-gitops-manifest-template
